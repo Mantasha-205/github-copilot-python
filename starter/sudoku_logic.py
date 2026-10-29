@@ -66,7 +66,9 @@ def fill_board(board):
 def count_solutions(board):
     """Count solutions up to two, returning early when uniqueness is disproved."""
     _validate_board_shape(board)
-    working = deep_copy(board)
+    # Critical review: tuple rows are accepted, but backtracking requires mutation.
+    # Convert rows to lists so the working copy is mutable without changing the input.
+    working = [list(row) for row in board]
     row_masks = [0] * SIZE
     column_masks = [0] * SIZE
     box_masks = [0] * SIZE
@@ -100,7 +102,7 @@ def count_solutions(board):
                 candidates = _FULL_MASK & ~(
                     row_masks[row] | column_masks[column] | box_masks[box]
                 )
-                candidate_count = candidates.bit_count()
+                candidate_count = bin(candidates).count("1")
                 if candidate_count == 0:
                     return 0
                 if candidate_count < fewest_candidates:
@@ -131,6 +133,10 @@ def count_solutions(board):
             row_masks[row] ^= bit
             column_masks[column] ^= bit
             box_masks[box] ^= bit
+            # Critical review of Copilot's solution-counting logic:
+            # Stop at two solutions because generation only needs to distinguish
+            # a unique solution (1) from multiple solutions (2 or more).
+            # Returning 2 is intentional; the exact total is unnecessary.
             if solutions >= 2:
                 return 2
 

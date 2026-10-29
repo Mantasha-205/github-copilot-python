@@ -133,3 +133,13 @@ def test_generate_puzzle_raises_when_unique_generation_attempts_are_exhausted(
 
     with pytest.raises(sudoku_logic.SudokuGenerationError, match="after 10 attempts"):
         sudoku_logic.generate_puzzle(35)
+
+
+def test_count_solutions_accepts_tuple_board_without_mutating_input():
+    board = tuple(tuple(0 for _ in range(9)) for _ in range(9))
+    original_board = board
+
+    result = sudoku_logic.count_solutions(board)
+
+    assert result == 2
+    assert board == original_board

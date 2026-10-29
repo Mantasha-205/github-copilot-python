@@ -36,15 +36,22 @@ function readBoard() {
 
 async function fetchJson(url, options) {
   const response = await fetch(url, options);
+  const responseText = await response.text();
+
   let data;
   try {
-    data = await response.json();
+    data = JSON.parse(responseText);
   } catch {
-    throw new Error('The server returned an invalid response.');
+    const preview = responseText.slice(0, 200).replace(/\s+/g, ' ');
+    throw new Error(
+      `Invalid server response (HTTP ${response.status}): ${preview || 'Empty response'}`
+    );
   }
+
   if (!response.ok) {
     throw new Error(data.error || 'The request could not be completed.');
   }
+
   return data;
 }
 
